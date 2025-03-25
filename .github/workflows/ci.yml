@@ -19,3 +19,8 @@ jobs:
           java-version: 21
       - name: Run unit tests
         run: ./gradlew test
+      - name: Upload test reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-test-reports
+          path: build/reports/tests/test/index.html
