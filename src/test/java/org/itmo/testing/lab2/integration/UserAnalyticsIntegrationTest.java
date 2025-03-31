@@ -70,7 +70,7 @@ public class UserAnalyticsIntegrationTest {
             Arguments.of(
                 Map.of("userId", "user1", "userName", "Alice"),
                 HttpStatus.SC_OK,
-                "User registered: true"
+                "User registered"
             ),
             Arguments.of(
                 Map.of("userName", "Alice"),
@@ -81,12 +81,12 @@ public class UserAnalyticsIntegrationTest {
                 Map.of("userId", "user1"),
                 HttpStatus.SC_BAD_REQUEST,
                 "Missing parameters"
+            ),
+            Arguments.of(
+                 Map.of("userId", "user1", "userName", "Alice"),
+                 HttpStatus.SC_BAD_REQUEST,
+                 "User already registered"
             )
-            // Arguments.of(
-            //     Map.of("userId", "user1", "userName", "Alice"),
-            //     HttpStatus.SC_BAD_REQUEST,
-            //     "User already registered"
-            // )
         );
     }
 

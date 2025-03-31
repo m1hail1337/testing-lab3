@@ -22,7 +22,11 @@ public class UserAnalyticsController {
                 return;
             }
             boolean success = service.registerUser(userId, userName);
-            ctx.result("User registered: " + success);
+            if (success) {
+                ctx.result("User registered");
+            } else {
+                ctx.status(400).result("User already registered");
+            }
         });
 
         app.post("/recordSession", ctx -> {

@@ -15,7 +15,7 @@ public class UserAnalyticsService {
 
     public boolean registerUser(String userId, String userName) {
         if (users.containsKey(userId)) {
-            throw new IllegalArgumentException("User already exists");
+            return false;
         }
         users.put(userId, new User(userId, userName));
         return true;
@@ -34,7 +34,7 @@ public class UserAnalyticsService {
             throw new IllegalArgumentException("No sessions found for user");
         }
         return userSessions.get(userId).stream()
-                .mapToLong(session -> ChronoUnit.MINUTES.between(session.getLoginTime(), session.getLogoutTime()))
+                .mapToLong(session -> ChronoUnit.MINUTES.between(session.loginTime(), session.logoutTime()))
                 .sum();
     }
 
@@ -44,7 +44,7 @@ public class UserAnalyticsService {
             String userId = entry.getKey();
             List<Session> sessions = entry.getValue();
             if (sessions.isEmpty()) continue;
-            LocalDateTime lastSessionTime = sessions.get(sessions.size() - 1).getLogoutTime();
+            LocalDateTime lastSessionTime = sessions.get(sessions.size() - 1).logoutTime();
             long daysInactive = ChronoUnit.DAYS.between(lastSessionTime, LocalDateTime.now());
             if (daysInactive > days) {
                 inactiveUsers.add(userId);
@@ -61,59 +61,25 @@ public class UserAnalyticsService {
         userSessions.get(userId).stream()
                 .filter(session -> isSessionInMonth(session, month))
                 .forEach(session -> {
-                    String dayKey = session.getLoginTime().toLocalDate().toString();
-                    long minutes = ChronoUnit.MINUTES.between(session.getLoginTime(), session.getLogoutTime());
+                    String dayKey = session.loginTime().toLocalDate().toString();
+                    long minutes = ChronoUnit.MINUTES.between(session.loginTime(), session.logoutTime());
                     activityByDay.put(dayKey, activityByDay.getOrDefault(dayKey, 0L) + minutes);
                 });
         return activityByDay;
     }
 
     private boolean isSessionInMonth(Session session, YearMonth month) {
-        LocalDateTime start = session.getLoginTime();
+        LocalDateTime start = session.loginTime();
         return start.getYear() == month.getYear() && start.getMonth() == month.getMonth();
-    }
-
-    public User getUser(String userId) {
-        return users.get(userId);
     }
 
     public List<Session> getUserSessions(String userId) {
         return userSessions.get(userId);
     }
 
-    public static class User {
-        private final String userId;
-        private final String userName;
-
-        public User(String userId, String userName) {
-            this.userId = userId;
-            this.userName = userName;
-        }
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
+    public record User(String userId, String userName) {
     }
 
-    public static class Session {
-        private final LocalDateTime loginTime;
-        private final LocalDateTime logoutTime;
-
-        public Session(LocalDateTime loginTime, LocalDateTime logoutTime) {
-            this.loginTime = loginTime;
-            this.logoutTime = logoutTime;
-        }
-
-        public LocalDateTime getLoginTime() {
-            return loginTime;
-        }
-
-        public LocalDateTime getLogoutTime() {
-            return logoutTime;
-        }
+    public record Session(LocalDateTime loginTime, LocalDateTime logoutTime) {
     }
 }
