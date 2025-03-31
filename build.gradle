@@ -1,5 +1,8 @@
+import com.sun.tools.javac.Main
+
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
 group = 'org.usvm'
@@ -24,4 +27,14 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: '**/Main*.*') // Исключаем класс Main
+        }))
+    }
 }
