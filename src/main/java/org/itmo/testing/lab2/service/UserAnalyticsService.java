@@ -44,7 +44,7 @@ public class UserAnalyticsService {
             String userId = entry.getKey();
             List<Session> sessions = entry.getValue();
             if (sessions.isEmpty()) continue;
-            LocalDateTime lastSessionTime = sessions.get(sessions.size() - 1).logoutTime();
+            LocalDateTime lastSessionTime = sessions.getLast().logoutTime();
             long daysInactive = ChronoUnit.DAYS.between(lastSessionTime, LocalDateTime.now());
             if (daysInactive > days) {
                 inactiveUsers.add(userId);
