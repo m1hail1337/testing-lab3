@@ -1,0 +1,287 @@
+{
+	"info": {
+		"_postman_id": "3a2c3763-07e9-49e0-a624-90c89677cc65",
+		"name": "Lab 2 testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30568723"
+	},
+	"item": [
+		{
+			"name": "Registration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"User registered: true\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let userId = pm.variables.replaceIn(\"{{$randomUUID}}\"); ",
+							"pm.environment.set(\"userId\", userId);",
+							"",
+							"let userName = pm.variables.replaceIn(\"{{$randomUserName}}\"); ",
+							"pm.environment.set(\"userName\", userName);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/register?userId={{userId}}&userName={{userName}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"register"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						},
+						{
+							"key": "userName",
+							"value": "{{userName}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Record Session",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const moment = require('moment')",
+							"",
+							"let logoutTime = pm.variables.replaceIn('{{$randomDatePast}}')",
+							"",
+							"pm.environment.set(\"loginTime\", moment(logoutTime).subtract(2, \"days\").format(\"YYYY-MM-DDTHH:mm:ss\"))",
+							"pm.environment.set(\"logoutTime\", moment(logoutTime).format(\"YYYY-MM-DDTHH:mm:ss\"))",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Session recorded\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/recordSession?userId={{userId}}&loginTime={{loginTime}}&logoutTime={{logoutTime}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"recordSession"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						},
+						{
+							"key": "loginTime",
+							"value": "{{loginTime}}"
+						},
+						{
+							"key": "logoutTime",
+							"value": "{{logoutTime}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Total activity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Total activity: 2880 minutes\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/totalActivity?userId={{userId}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"totalActivity"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Inactive users",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const moment = require('moment')",
+							"",
+							"const days = moment().diff(moment(pm.environment.get(\"logoutTime\")), 'days');",
+							"pm.environment.set(\"days\", days)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/inactiveUsers?days={{days}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"inactiveUsers"
+					],
+					"query": [
+						{
+							"key": "days",
+							"value": "{{days}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Monthly Activity",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const moment = require('moment')",
+							"",
+							"const month = moment(pm.environment.get(\"logoutTime\")).format('YYYY-MM');",
+							"",
+							"pm.environment.set('month', month)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/monthlyActivity?month={{month}}&userId={{userId}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"monthlyActivity"
+					],
+					"query": [
+						{
+							"key": "month",
+							"value": "{{month}}"
+						},
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:8080"
+		}
+	]
+}
