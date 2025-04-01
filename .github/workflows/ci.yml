@@ -19,8 +19,30 @@ jobs:
           java-version: 21
       - name: Run unit tests
         run: ./gradlew test
-      - name: Upload test reports
+      - name: Upload gradle test report
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-test-reports
+          name: gradle-test-report
           path: build/reports/tests/test/index.html
+      - name: Upload JaCoCo test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-test-report
+          path: build/reports/jacoco/test/html/index.html
+      - name: Load test report history
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Build Allure test report
+        uses: simple-elf/allure-report-action@v1.12
+        with:
+          gh_pages: gh-pages
+          allure_history: allure-history
+          allure_results: build/allure-results
+      - name: Publish Allure test report
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
