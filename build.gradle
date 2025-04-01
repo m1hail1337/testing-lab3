@@ -3,6 +3,7 @@ import com.sun.tools.javac.Main
 plugins {
     id 'java'
     id 'jacoco'
+    id("com.diffplug.spotless") version "7.0.2"
 }
 
 group = 'org.usvm'
@@ -17,6 +18,8 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.16")
     implementation("com.google.code.gson:gson:2.12.1")
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.0-rc1'
+
+    implementation 'com.diffplug.spotless:spotless-plugin-gradle:7.0.2'
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation("io.rest-assured:rest-assured:5.5.1")
@@ -37,5 +40,18 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: '**/Main*.*') // Исключаем класс Main
         }))
+    }
+}
+
+spotless {
+    java {
+        target fileTree('.') {
+            include '**/*.java'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        toggleOffOn()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }

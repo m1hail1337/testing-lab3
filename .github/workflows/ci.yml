@@ -17,6 +17,9 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: 21
+      - name: Run check with spotless
+        run: ./gradlew check
+        continue-on-error: true
       - name: Run unit tests
         run: ./gradlew test
       - name: Upload gradle test report
